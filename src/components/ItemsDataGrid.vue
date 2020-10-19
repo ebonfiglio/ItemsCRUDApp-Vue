@@ -8,25 +8,28 @@
       class="elevation-1 justify-center"
        :loading="isLoading"
     loading-text="Loading... Please wait"
+       :search="search"
+      :custom-filter="filterText"
     >
       <template v-slot:top>
+      <v-toolbar flat>
         <v-text-field
-          label="Search"
+        v-model="search"
+          label="Search (case sensitive)"
           class="mx-4"
         ></v-text-field>
+       <v-spacer></v-spacer>
+      
+        <AddItemButton :showDialog="false"/>
+      </v-toolbar>
+
       </template>
       <template v-slot:[`item.cost`]="{ item }">
      
         {{ item.cost | currency }}
     </template>
      <template v-slot:[`item.actions`]="{ item }">
-      <v-icon
-        small
-        class="mr-2"
-        @click="editItem(item)"
-      >
-        mdi-pencil
-      </v-icon>
+      <EditPencil :item="item"/>
       <v-icon
         small
         @click="deleteItem(item)"
@@ -39,16 +42,28 @@
 </template>
 
 <script>
-import * as axios from 'axios';
-
+import itemService from '../services/ItemService';
+import AddItemButton from '@/components/AddItemButton';
+import EditPencil from '@/components/EditPencil';
+import Bus from "../main"; 
 export default {
     name: 'ItemsDataGrid',
+    components: {
+    AddItemButton, EditPencil
+  },
   data () {
     return {
       items: [],
-      isLoading: true
+      isLoading: true,
+      search: '',
     }
   },
+   created () {
+   let self = this;
+    Bus.$on('refreshItemList', async function () {
+      await self.getAll();
+    })
+   },
   computed: {
       headers () {
         return [
@@ -68,12 +83,30 @@ export default {
         ]
       },
     },
-  mounted () {
-    axios
-      .get('https://itemscrudappapi20201017151829.azurewebsites.net/api/item')
-      .then(response => (this.items = response.data))
-      .finally(this.isLoading = false)
-  }
+  async mounted () {
+      this.items = await itemService.getAll().finally(()=>{this.isLoading = false});
+  },
+  methods:{
+    async deleteItem(item){
+      var response = await itemService.delete(item.id);
+      if(response == 200)
+      {
+        this.getAll();
+        this.refreshMaxPriceList();
+      }
+    },
+    async getAll(){
+      this.items = await itemService.getAll().finally(()=>{this.isLoading = false});
+    },
+    refreshMaxPriceList() {
+      Bus.$emit('refreshMaxPriceList');
+  },
+  filterText (value, search) {
+        return value != null &&
+          search != null &&
+          typeof value === 'string' &&
+          value.toString().indexOf(search) !== -1
+      },
+    },
 }
-
 </script>

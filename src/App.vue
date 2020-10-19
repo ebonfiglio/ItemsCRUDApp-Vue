@@ -1,45 +1,38 @@
 <template>
   <v-app>
 
-  <v-app-bar app>
-    <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
-     Items CRUD App
+  <v-app-bar app color="indigo darken-3">
+    <v-app-bar-nav-icon color="white" @click.stop="drawer = !drawer">
+   
+      </v-app-bar-nav-icon>
+     <div style="color: white">Items CRUD App</div>
   </v-app-bar>
 
   <v-navigation-drawer  v-model="drawer"
       absolute
-      bottom
+      
       temporary>
+          <v-list
+        nav
+        dense
+      >
+        <v-list-item-group
+          v-model="group"
+          active-class="deep-purple--text text--accent-4"
+        >
+          <v-list-item>
+            <v-list-item-title><router-link to="/">Home</router-link></v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-title><router-link to="/fullmaxpricelist">Max Price List</router-link></v-list-item-title>
+          </v-list-item>
+        </v-list-item-group>
+       </v-list>
   </v-navigation-drawer>
-
   <v-main>
-    <v-container fluid>
-       <v-container>
-    <v-row no-gutters>
-      <v-col
-        cols="12"
-        md="2"
-      >
-      </v-col>
-       <v-col
-        cols="12"
-        md="8"
-      >
-      <ItemsDataGrid/>
-      </v-col>
-       <v-col
-        cols="12"
-        md="2"
-      >
-      </v-col>
-    </v-row>
-  </v-container>
-
-      <!-- If using vue-router -->
-      <!--<router-view></router-view>-->
-
-    </v-container>
-  </v-main>
+    <router-view/>
+</v-main>
 
   <v-footer app>
     <!-- -->
@@ -48,14 +41,8 @@
 </template>
 
 <script>
-import ItemsDataGrid from '@/components/ItemsDataGrid';
 export default {
   name: 'App',
-
-  components: {
-    ItemsDataGrid
-  },
-
   data: () => ({
       drawer: false,
       group: null,
@@ -65,6 +52,6 @@ export default {
       group () {
         this.drawer = false
       },
-    },
+    }
 };
 </script>
