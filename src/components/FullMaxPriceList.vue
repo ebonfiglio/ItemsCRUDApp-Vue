@@ -4,7 +4,7 @@
       <v-data-table
     dense
       :headers="headers"
-      :items="items"
+      :items="maxPrices"
       item-key="id"
       class="elevation-1 justify-center"
        :loading="isLoading"
@@ -20,16 +20,16 @@
 </template>
 
 <script>
-import itemService from '../services/ItemService';
+import { mapActions, mapState } from 'vuex';
 export default {
     name: 'ItemsDataGrid',
   data () {
     return {
-      items: [],
       isLoading: true
     }
   },
   computed: {
+    ...mapState(['maxPrices']),
       headers () {
         return [
           {
@@ -47,12 +47,13 @@ export default {
         ]
       },
     },
-  async mounted () {
-      this.getAll();
+ async mounted() {
+      await this.getAll();
   },
   methods:{
+    ...mapActions(['getMaxPricesAction']),
     async getAll(){
-      this.items = await itemService.maxPricesOfItems().finally(()=>{this.isLoading = false});
+      await this.getMaxPricesAction().finally(()=>{this.isLoading = false});
     }
 }
 }

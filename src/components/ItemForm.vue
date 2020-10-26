@@ -56,8 +56,7 @@
 </template>
 
 <script>
-import itemService from '../services/ItemService';
-import Bus from "../main"; 
+import { mapActions } from 'vuex';
 export default {
      name: 'ItemForm',
      props: {
@@ -81,6 +80,7 @@ export default {
   },
 
   methods: {
+     ...mapActions(['updateItemAction', 'addItemAction','getMaxPricesAction']),
      setTitle(){
       if(this.id > 0) this.type = "Update"
     },
@@ -97,28 +97,33 @@ export default {
         itemName: this.itemName,
         cost: parseInt(this.cost)
       }
-      var response = null;
       if(this.id > 0)
       {
-        response = await itemService.update(item);
-        if(response) this.closeDialog();
+         try
+        {
+        await this.updateItemAction(item);
+        await this.getMaxPricesAction();
+        this.closeDialog();
+        }
+        catch
+        {
         this.showAlert = true;
+        }
       }
       else
       {
-        response = await itemService.create(item);
-        if(response) this.closeDialog();
+        try
+        {
+        await this.addItemAction(item);
+        await this.getMaxPricesAction();
+        this.closeDialog();
+        }
+        catch
+        {
         this.showAlert = true;
+        }
       }
-this.refreshMaxPriceList();
-this.refreshItemList();
-    },
-    refreshMaxPriceList() {
-      Bus.$emit('refreshMaxPriceList');
-  },
-  refreshItemList(){
-    Bus.$emit('refreshItemList');
-  }
+    }
   },
   mounted(){
    this.setTitle();

@@ -42,10 +42,9 @@
 </template>
 
 <script>
-import itemService from '../services/ItemService';
+import { mapActions, mapState } from 'vuex';
 import AddItemButton from '@/components/AddItemButton';
 import EditPencil from '@/components/EditPencil';
-import Bus from "../main"; 
 export default {
     name: 'ItemsDataGrid',
     components: {
@@ -53,18 +52,15 @@ export default {
   },
   data () {
     return {
-      items: [],
       isLoading: true,
       search: '',
     }
   },
-   created () {
-   let self = this;
-    Bus.$on('refreshItemList', async function () {
-      await self.getAll();
-    })
+    mounted () {
+      this.getAll();
    },
   computed: {
+    ...mapState(['items']),
       headers () {
         return [
           {
@@ -83,24 +79,18 @@ export default {
         ]
       },
     },
-  async mounted () {
-      this.items = await itemService.getAll().finally(()=>{this.isLoading = false});
-  },
   methods:{
+    ...mapActions(['getItemsAction', 'deleteItemAction']),
     async deleteItem(item){
-      var response = await itemService.delete(item.id);
+      var response = await this.deleteItemAction(item);
       if(response == 200)
       {
-        this.getAll();
-        this.refreshMaxPriceList();
+        await this.getAll();
       }
     },
     async getAll(){
-      this.items = await itemService.getAll().finally(()=>{this.isLoading = false});
+      await this.getItemsAction().finally(()=>{this.isLoading = false});
     },
-    refreshMaxPriceList() {
-      Bus.$emit('refreshMaxPriceList');
-  },
   filterText (value, search) {
         return value != null &&
           search != null &&

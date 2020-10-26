@@ -18,6 +18,7 @@ class ItemService
     }
 
     async getAll() {
+        
         try
         {
             var response = await Axios.get(`${API}item`);
@@ -34,7 +35,6 @@ class ItemService
     async create(item){
         try
         {
-            console.log(item);
             var response = await Axios.post(`${API}item`, {id:item.id, itemName: item.itemName, cost: item.cost},
             {headers: {"Content-Type": "application/json"}
             });

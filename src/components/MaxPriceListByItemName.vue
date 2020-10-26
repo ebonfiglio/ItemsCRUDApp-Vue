@@ -24,7 +24,7 @@
       </thead>
       <tbody>
         <tr
-          v-for="item in items"
+          v-for="item in getTopMaxPrices"
           :key="item.id"
         >
         <td>{{ item.id }}</td>
@@ -56,37 +56,28 @@
 
 
 <script>
-import itemService from '../services/ItemService';
-import Bus from "../main"; 
+import { mapGetters, mapActions } from 'vuex';
 export default {
     name: 'MaxPriceListByItemName',
     data () {
     return {
-      items: [],
     }
     },
-    created () {
-   let self = this;
-    Bus.$on('refreshMaxPriceList', async function () {
-      await self.getAll();
-    })
-  },
-  async mounted () {
-      this.items = await itemService.maxPricesOfItems();
-      this.items = this.items.sort(function(a, b) { 
-    return b.cost - a.cost;
-}).slice(0, 3);
+   mounted () {
+     this.getAll();
+   
   },
   methods:{
+    ...mapActions(['getMaxPricesAction']),
+    async getAll(){
+      await this.getMaxPricesAction().finally(()=>{this.isLoading = false});
+    },
       viewAll(){
            this.$router.push({name: 'MaxPriceList'}); 
-      },
-      async getAll(){
- this.items = await itemService.maxPricesOfItems();
-      this.items = this.items.sort(function(a, b) { 
-    return b.cost - a.cost;
-}).slice(0, 3);
       }
   },
+  computed:{
+     ...mapGetters(['getTopMaxPrices']),
+  }
 }
 </script>
